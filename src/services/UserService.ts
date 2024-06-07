@@ -6,7 +6,7 @@ import {
 } from 'routing-controllers';
 import { CreateUserDto } from '../dtos/CreateUserDto';
 import { IUser } from '../interfaces/IUser';
-import { hash } from '../utils/hash';
+import { hash } from '../utils/Hash';
 
 /**
  * UserService class

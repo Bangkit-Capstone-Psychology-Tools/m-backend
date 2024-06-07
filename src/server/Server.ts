@@ -3,7 +3,7 @@ import { createExpressServer } from 'routing-controllers';
 import dotenv from 'dotenv';
 import path from 'path';
 import { ErrorHandler } from '../middleware/ErrorHandler';
-import { authCheck } from '../utils/authorizationChecker';
+import { authCheck } from '../utils/AuthorizationChecker';
 
 dotenv.config();
 
