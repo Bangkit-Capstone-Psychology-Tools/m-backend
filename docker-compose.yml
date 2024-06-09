@@ -1,0 +1,23 @@
+# docker-compose.yml
+version: '3'
+services:
+  app:
+    build: .
+    ports: 
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - db
+    # command: ["./wait-for-it.sh", "db:5432", "--", "npm", "start:migrate"]
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=toor
+      - POSTGRES_DB=mydb
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+volumes:
+  postgres_data:
