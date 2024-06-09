@@ -8,7 +8,6 @@ services:
     env_file: .env
     depends_on:
       - db
-    # command: ["./wait-for-it.sh", "db:5432", "--", "npm", "start:migrate"]
   db:
     image: postgres:13
     environment:
