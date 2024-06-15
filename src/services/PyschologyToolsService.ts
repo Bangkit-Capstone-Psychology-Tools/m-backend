@@ -1,5 +1,5 @@
 import { PrismaClient, Tools } from '@prisma/client';
-import { RegisterToolDto, ToolsNlpDto, ToolsPredictMentalHealthDto } from '../dtos';
+import { DepressionLevelModelDto, MentalDisorderModelDto, RegisterToolDto, ToolsNlpDto, ToolsPredictMentalHealthDto } from '../dtos';
 import {
     BadRequestError,
     InternalServerError,
@@ -87,7 +87,7 @@ export class PsychologyToolsService {
         }
     }
 
-    async toolsPredictMentalHealth(toolsPredictMentalHealthDto: ToolsPredictMentalHealthDto) {
+    async toolsPredictMentalHealth(toolsPredictMentalHealthDto: MentalDisorderModelDto) {
         // Punya sony
         let answers = toolsPredictMentalHealthDto.toJson()
         let json: string = JSON.stringify(answers)
@@ -98,7 +98,7 @@ export class PsychologyToolsService {
         // request ke tool.apiLink
     }
 
-    async toolAngga1(toolAngga1Dto: ToolAngga1Dto) {
+    async toolAngga1(toolAngga1Dto: DepressionLevelModelDto) {
         // Punya Angga
         let answers = toolAngga1Dto.toJson()
         let json: string = JSON.stringify(answers)

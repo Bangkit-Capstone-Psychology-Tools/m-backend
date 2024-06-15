@@ -1,9 +1,11 @@
-import { Min, Max } from 'class-validator';
+import { Min, Max, Length } from 'class-validator';
 /**
  * LoginDto class
  * @class
  */
-export class ToolsPredictMentalHealthDto {
+export class MentalDisorderModelDto {
+  @Length(5,20)
+  name: string;
   @Min(1)
   @Max(4)
   kesedihan: number; 

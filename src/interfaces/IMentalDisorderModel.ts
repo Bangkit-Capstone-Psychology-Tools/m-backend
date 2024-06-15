@@ -1,9 +1,9 @@
 /**
- * IUser interface
+ * IMentalDisorderModel interface
  * @interface
  */
 
-interface IToolsPredictMentalHealth {
+export interface IMentalDisorderModel {
   kesedihan: number; // 1 (Sering) - 4 (Jarang)
   euphoria: number; // 1 (Sering) - 4 (Jarang)
   lelah: number; // 1 (Sering) - 4 (Jarang)
