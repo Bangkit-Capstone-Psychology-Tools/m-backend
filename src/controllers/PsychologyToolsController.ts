@@ -6,11 +6,14 @@ import {
   Post,
   Delete,
   OnUndefined,
+  Req,
+  UseBefore,
 } from 'routing-controllers';
 // import { tool } from '@prisma/client';
+import { Request } from 'express'
 import { PsychologyToolsService } from '../services';
-import { RegisterToolDto } from '../dtos';
-import { IToolsPredictMentalHealth } from '../interfaces/IToolsPredictMentalHealth';
+import { DepressionLevelModelDto, MentalDisorderModelDto, RegisterToolDto, ToolsNlpDto } from '../dtos';
+import { AuthMiddleware } from '../middleware/AuthMiddleware';
 
 /**
  * PyschologyToolsController class
@@ -34,47 +37,114 @@ export class PyschologyToolsController {
     this.psychologyToolsService = new PsychologyToolsService();
   }
 
-  /**
-   * Get all psychologyToolss
-   * @memberof PyschologyToolsController
-   * @returns {Promise<IPsychologyTools>}
-   */
-  @Get('/')
-  index(): Promise<IPsychologyTools[]> {
-    return this.psychologyToolsService.index();
-  }
-
-  /**
-   * Get one psychologyTools by uuid
-   * @memberof PyschologyToolsController
-   * @param {string} uuid
-   * @returns {Promise<IPsychologyTools | null>}
-   */
-  @Get('/:uuid')
-  getByUUID(@Param('uuid') uuid: string): Promise<IPsychologyTools | null> {
-    return this.psychologyToolsService.getByUUID(uuid);
-  }
-
-  /**
-   * Create new psychologyTools
-   * @memberof PyschologyToolsController
-   * @param {CreatePsychologyToolsDto} data
-   * @returns {Promise<PsychologyTools>}
-   */
   @Post('/')
-  create(@Body() data: CreatePsychologyToolsDto): Promise<PsychologyTools> {
-    return this.psychologyToolsService.create(data);
+  async registerTool(@Req() req: Request) {
+
+    const body: RegisterToolDto = req.body as {
+      name: string,
+      class: number,
+      description: string,
+      path: string
+    }
+    
+    return {
+      message: "success",
+      data: this.psychologyToolsService.registerTool(body)
+    }
   }
 
-  /**
-   * Soft delete psychologyTools
-   * @memberof PyschologyToolsController
-   * @param {string} uuid
-   * @returns {Promise<void>}
-   */
-  @Delete('/:uuid')
-  @OnUndefined(204)
-  delete(@Param('uuid') uuid: string): Promise<void> {
-    return this.psychologyToolsService.delete(uuid);
+  @Post('/mental_disorder')
+  @UseBefore(AuthMiddleware)
+  async mentalDisorderModel(@Req() req: Request) {
+    const user = req.userId; // Access the user property set in the middleware
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+
+    const body: MentalDisorderModelDto = req.body as {
+      name: string,
+      kesedihan: number, 
+      euphoria: number, 
+      lelah: number, 
+      gangguanTidur: number, 
+      moodSwing: number, 
+      pikiranBunuhDiri: number, 
+      anoreksia: number, 
+      menghormatiOtoritas: number, 
+      memberikanPenjelasan: number, 
+      responsAgresif: number, 
+      tidakPeduli: number, 
+      mudahGugup: number, 
+      mengakuiKesalahan: number, 
+      overthinking: number, 
+      aktivitasSeksual: number, 
+      mudahKonsentrasi: number, 
+      optimis: number
+    };
+
+    const result = await this.psychologyToolsService.mentalDisorderModel(body, user);
+    return { message: 'Data processed successfully', result };
+    
+  }
+
+  @Post('/depression_level')
+  @UseBefore(AuthMiddleware)
+  async depressionLevelModel(@Req() req: Request) {
+    const user = req.userId; // Access the user property set in the middleware
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+
+    const body: DepressionLevelModelDto = req.body as {
+      name: string,
+      sleep: number,
+      appetite: number,
+      interest: number,
+      fatigue: number,
+      worthlessness: number,
+      concentration: number,
+      agitation: number,
+      suicidalIdeation: number,
+      sleepDisturbance: number,
+      aggression: number,
+      panicAttacks: number,
+      hopelessness: number,
+      restlessness: number,
+      lowEnergy: number
+    };
+
+    const result = await this.psychologyToolsService.depressionLevelModel(body, user);
+    return { message: 'Data processed successfully', result };
+    
+  }
+
+  @Post('/text_emotion')
+  @UseBefore(AuthMiddleware)
+  async textEmotionModel(@Req() req: Request) {
+    const user = req.userId; // Access the user property set in the middleware
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+
+    const body: ToolsNlpDto = req.body as { answers: any; name: string };
+
+    const result = await this.psychologyToolsService.textEmotionModel(body, user);
+    return { message: 'Data processed successfully', result };
+    
+  }
+
+  @Post('/wdyt_yesterday')
+  @UseBefore(AuthMiddleware)
+  async wdytYesterdayModel(@Req() req: Request) {
+    const user = req.userId; // Access the user property set in the middleware
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+
+    const body: ToolsNlpDto = req.body as { answers: any; name: string };
+
+    const result = await this.psychologyToolsService.wdytYesterdayModel(body, user);
+    return { message: 'Data processed successfully', result };
+    
   }
 }

@@ -1,3 +1,3 @@
 export interface IToolsNlp {
-    answer: number;
+    answer: string;
 }

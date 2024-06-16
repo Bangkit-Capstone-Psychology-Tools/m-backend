@@ -1,4 +1,4 @@
-import { IsEmail, Length } from 'class-validator';
+import { IsEmail, Length, Max, Min } from 'class-validator';
 /**
  * LoginDto class
  * @class
@@ -8,12 +8,13 @@ export class RegisterToolDto {
   @Length(8, 50)
   name: string;
   /** @type {string} */
-  @Length(0,1)
-  class: string;
+  @Min(1)
+  @Max(4)
+  class: number;
   /** @type {string} */
   @Length(8, 50)
   description: string;
   /** @type {string} */
   @Length(10,200)
-  apiLink: string;
+  path: string;
 }

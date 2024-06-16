@@ -6,7 +6,6 @@ import {
 } from 'routing-controllers';
 import { CreateUserDto } from '../dtos/CreateUserDto';
 import { IUser } from '../interfaces/IUser';
-import { hash } from '../utils/hash';
 
 /**
  * UserService class
@@ -34,12 +33,11 @@ export class UserService {
   async index(): Promise<IUser[]> {
     const users: IUser[] = await this.prisma.user.findMany({
       select: {
-        uuid: true,
+        id: true,
         name: true,
         email: true,
         createdAt: true,
         updatedAt: true,
-        isActive: true,
         role: {
           select: {
             name: true,
@@ -58,14 +56,13 @@ export class UserService {
    */
   async getByUUID(uuid: string): Promise<IUser | null> {
     const user: IUser | null = await this.prisma.user.findUnique({
-      where: { uuid },
+      where: { id: uuid },
       select: {
-        uuid: true,
+        id: true,
         name: true,
         email: true,
         createdAt: true,
         updatedAt: true,
-        isActive: true,
         role: {
           select: {
             name: true,
@@ -133,9 +130,8 @@ export class UserService {
       // Verify if exists
       this.getByUUID(uuid);
 
-      await this.prisma.user.update({
-        where: { uuid },
-        data: { isActive: false },
+      await this.prisma.user.delete({
+        where: { id: uuid },
       });
     } catch (error) {
       throw new BadRequestError(`Error: ${error}`);

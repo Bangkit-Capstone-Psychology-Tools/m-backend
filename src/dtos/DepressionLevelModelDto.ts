@@ -59,23 +59,4 @@ export class DepressionLevelModelDto {
     @Min(1)
     @Max(5)
     lowEnergy: number;
-
-    toJson(): Record<string, number> {
-        return {
-            sleep: this.sleep,
-            appetite: this.appetite,
-            interest: this.interest,
-            fatigue: this.fatigue,
-            worthlessness: this.worthlessness,
-            concentration: this.concentration,
-            agitation: this.agitation,
-            suicidalIdeation: this.suicidalIdeation,
-            sleepDisturbance: this.sleepDisturbance,
-            aggression: this.aggression,
-            panicAttacks: this.panicAttacks,
-            hopelessness: this.hopelessness,
-            restlessness: this.restlessness,
-            lowEnergy: this.lowEnergy,
-        };
-    }
 }

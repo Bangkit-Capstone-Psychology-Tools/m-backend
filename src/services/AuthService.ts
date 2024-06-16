@@ -1,8 +1,8 @@
 import { UnauthorizedError, InternalServerError } from 'routing-controllers';
 import bcryptjs from 'bcryptjs';
 import { UserService } from '../services';
-import { generateJWT } from '../utils/generateJwt';
 import { LoginDto } from '../dtos/LoginDto';
+import { generateJWT } from '../utils/GenerateJWT';
 
 /**
  * AuthService class

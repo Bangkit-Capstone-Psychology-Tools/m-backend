@@ -3,39 +3,39 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
 model PsikologJobs {
-  id         String   @id @default(uuid())
-  name       String   @db.VarChar(50)
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @default(now()) @map("updated_at")
-  
-  PsikologAksesPsikologiTools PsikologAksesPsikologiTools[]
-  PsikologAdditionalData     PsikologAdditionalData[]
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(50)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  PsikologAdditionalData PsikologAdditionalData[]
 
   @@index([name], name: "idx_name")
+  @@map("psikolog_job")
 }
 
 model User {
-  id         String   @id @default(uuid())
-  name       String   @db.VarChar(50)
-  type       String   @db.VarChar(20)
-  isVerified Boolean  @default(false) @map("is_verified")
-  photoUrl   String?  @db.VarChar(100) @map("photo_url")
-  email      String   @unique @db.VarChar(50)
-  noHp       String?  @db.VarChar(13) @map("no_hp")
+  id         String    @id @default(uuid())
+  name       String    @db.VarChar(50)
+  type       String    @db.VarChar(20)
+  isVerified Boolean   @default(false) @map("is_verified")
+  photoUrl   String?   @map("photo_url") @db.VarChar(100)
+  email      String    @unique @db.VarChar(50)
+  noHp       String?   @map("no_hp") @db.VarChar(13)
   birthday   DateTime?
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @default(now()) @map("updated_at")
-  roleId     Int      @default(1)
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @default(now()) @map("updated_at")
+  roleId     Int       @default(1)
 
-  Profile             Profile?
-  TreatmentSession    TreatmentSession[]
+  TreatmentSession       TreatmentSession[]
+  Result                 Result[]
   PsikologAdditionalData PsikologAdditionalData?
-  role                Role @relation(fields: [roleId], references: [id])
+  role                   Role                    @relation(fields: [roleId], references: [id])
 
   @@map("user")
 }
@@ -45,77 +45,72 @@ model Role {
   id          Int    @id @default(autoincrement())
   name        String @db.VarChar(50)
   description String
-  
-  User        User[]
+
+  User User[]
 
   @@map("roles")
-  
 }
 
 model PsikologAdditionalData {
-  psychologistId        String   @id @default(uuid()) @map("psychologist_id")
+  psikologId            String   @id @default(uuid()) @map("psychologist_id")
   nik                   String   @db.VarChar(50)
-  certificateCredential String   @db.VarChar(20) @map("certificate_credential")
+  certificateCredential String   @map("certificate_credential") @db.VarChar(20)
   isVerified            Boolean  @default(false) @map("is_verified")
-  photoUrl              String?  @db.VarChar(100) @map("photo_url")
+  photoUrl              String?  @map("photo_url") @db.VarChar(100)
   email                 String   @unique @db.VarChar(50)
+  class                 Int
   currentJobId          String?  @map("current_job_id")
   createdAt             DateTime @default(now()) @map("created_at")
   updatedAt             DateTime @default(now()) @map("updated_at")
-  
-  User        User    @relation(fields: [psychologistId], references: [id])
+
+  Psikolog     User          @relation(fields: [psikologId], references: [id])
   PsikologJobs PsikologJobs? @relation(fields: [currentJobId], references: [id])
 
   @@map("psikolog_additional_data")
 }
 
-model PsikologAksesPsikologiTools {
-  id            String   @id @default(uuid())
-  currentJobId  String   @map("current_job_id")
-  class         String   @db.VarChar(1)
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @default(now()) @map("updated_at")
-  
-  PsikologJobs  PsikologJobs @relation(fields: [currentJobId], references: [id])
-
-  @@map("psikolog_akses_psikologi_tools")
-}
-
 model Result {
-  id                       String                      @id @default(uuid())
-  psikologiToolsId         String                      @map("psikologi_tools_id")
-  psikologAdditionalDataId String                      @map("psikolog_additional_data_id")
-  score                    Int
-  createdAt                DateTime                    @default(now()) @map("created_at")
-  updatedAt                DateTime                    @default(now()) @map("updated_at")
-  
-  PsikologiTools           PsikologiTools              @relation(fields: [psikologiToolsId], references: [id])
-  PsikologAdditionalData   PsikologAdditionalData      @relation(fields: [psikologAdditionalDataId], references: [psychologistId])
+  id               String   @id @default(uuid())
+  psikologiToolsId String   @map("psikologi_tools_id")
+  psikologId       String   @map("psikolog_id")
+  name             String
+  answers          String
+  result           String
+  editedResult     String?  @map("edited_result")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @default(now()) @map("updated_at")
+
+  PsikologiTools PsikologiTools @relation(fields: [psikologiToolsId], references: [id])
+  Psikolog       User           @relation(fields: [psikologId], references: [id])
 
   @@map("result")
 }
 
 model PsikologiTools {
-  id                       String                      @id @default(uuid())
-  name                     String                      @db.VarChar(50)
-  class                    String                      @db.VarChar(1)
-  description              String?
-  createdAt                DateTime                    @default(now()) @map("created_at")
-  updatedAt                DateTime                    @default(now()) @map("updated_at")
-  
-  Result                   Result[]
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(50)
+  path        String   @unique
+  class       Int
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+
+  Result Result[]
 
   @@map("psikologi_tools")
 }
 
 model TreatmentSession {
-  id                       String                      @id @default(uuid())
-  psikologId               String                      @map("psikolog_id")
-  clientId                 String                      @map("client_id")
-  description              String?
-  createdAt                DateTime                    @default(now()) @map("created_at")
-  updatedAt                DateTime                    @default(now()) @map("updated_at")
-  
+  id          String   @id @default(uuid())
+  psikologId  String   @map("psikolog_id")
+  clientId    String   @map("client_id")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+  User        User?    @relation(fields: [userId], references: [id])
+  userId      String?
+
   @@index([psikologId], name: "idx_psikolog_id")
   @@index([clientId], name: "idx_client_id")
+  @@map("treatment_session")
 }

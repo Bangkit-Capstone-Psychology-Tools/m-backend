@@ -57,27 +57,4 @@ export class MentalDisorderModelDto {
   @Min(1)
   @Max(10)
   optimis: number; 
-
-
-  toJson() {
-    return {
-      kesedihan: this.kesedihan,
-      euphoria: this.euphoria,
-      lelah: this.lelah,
-      gangguanTidur: this.gangguanTidur,
-      moodSwing: this.moodSwing,
-      pikiranBunuhDiri: this.pikiranBunuhDiri,
-      anoreksia: this.anoreksia,
-      menghormatiOtoritas: this.menghormatiOtoritas,
-      memberikanPenjelasan: this.memberikanPenjelasan,
-      responsAgresif: this.responsAgresif,
-      tidakPeduli: this.tidakPeduli,
-      mudahGugup: this.mudahGugup,
-      mengakuiKesalahan: this.mengakuiKesalahan,
-      overthinking: this.overthinking,
-      aktivitasSeksual: this.aktivitasSeksual,
-      mudahKonsentrasi: this.mudahKonsentrasi,
-      optimis: this.optimis
-    }
-  }
 }

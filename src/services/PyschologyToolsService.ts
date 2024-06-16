@@ -1,5 +1,5 @@
-import { PrismaClient, Tools } from '@prisma/client';
-import { DepressionLevelModelDto, MentalDisorderModelDto, RegisterToolDto, ToolsNlpDto, ToolsPredictMentalHealthDto } from '../dtos';
+import { Prisma, PrismaClient, PsikologiTools} from '@prisma/client';
+import { DepressionLevelModelDto, MentalDisorderModelDto, RegisterToolDto, ToolsNlpDto } from '../dtos';
 import {
     BadRequestError,
     InternalServerError,
@@ -7,6 +7,9 @@ import {
 } from 'routing-controllers';
 import { json } from 'body-parser';
 import axios from 'axios';
+import { instanceToPlain } from 'class-transformer';
+
+const ML_API = `${process.env.ML_BACKEND}/model/ `
 
 /**
  * UserService class
@@ -29,24 +32,31 @@ export class PsychologyToolsService {
     async registerTool(registerToolDto: RegisterToolDto) {
         try {
             // If email is already registered
-            if (await this.getByApiLink(registerToolDto.apiLink)) {
+            if (await this.getPath(registerToolDto.path)) {
                 console.log('The Api Link already registered');
                 throw new BadRequestError(`Error: Api Link is already registered`);
             }
       
             // Hash password
-            return this.prisma.tool.create({
-                data: registerToolDto,
+            return this.prisma.psikologiTools.create({
+                data: {
+                    name: registerToolDto.name,
+                    path: registerToolDto.path,
+                    description: registerToolDto.description,
+                    class: registerToolDto.class
+                },
             });
         } catch (error) {
             throw new BadRequestError(`Error: ${error}`);
         }
     }
 
-    async getByApiLink(api: string) {
+    async getPath(path: string) {
         try {
-            return await this.prisma.tool.findUnique({
-                where: { api_link: api },
+            return await this.prisma.psikologiTools.findUnique({
+                where: {
+                    path: '34',
+                },
             });
         } catch (error) {
             throw new InternalServerError(`Error: ${error}`);
@@ -55,7 +65,7 @@ export class PsychologyToolsService {
 
     async getById(uuid: string) {
         try {
-            return await this.prisma.tool.findUnique({
+            return await this.prisma.psikologiTools.findUnique({
                 where: { id: uuid },
             });
         } catch (error) {
@@ -63,8 +73,8 @@ export class PsychologyToolsService {
         }
     }
 
-    async doRequestAndSave(link: string, ans: any, name: string, toolId: string, userId: string) {
-        const res = await axios.post(link, ans, {
+    async doRequestAndSave(tool: PsikologiTools, ans: any, name: string, userId: string) {
+        const res = await axios.post(ML_API + tool.path, ans, {
             headers: {
               'Content-Type': 'application/json'
             }
@@ -75,11 +85,12 @@ export class PsychologyToolsService {
         try {
             return this.prisma.result.create({
                 data: {
-                    toolId: toolId,
-                    userId: userId,
+                    psikologiToolsId: tool.id,
+                    psikologId: userId,
                     name: name,
                     answers: ans,
                     result: resString,
+                    editedResult: ""
                 },
             });
         } catch (error) {
@@ -87,50 +98,85 @@ export class PsychologyToolsService {
         }
     }
 
-    async toolsPredictMentalHealth(toolsPredictMentalHealthDto: MentalDisorderModelDto) {
+    async mentalDisorderModel(mentalDisorderModelReq: MentalDisorderModelDto, userId: string) {
         // Punya sony
-        let answers = toolsPredictMentalHealthDto.toJson()
-        let json: string = JSON.stringify(answers)
-
-        const id: string = "1231241421";
-        let tool = this.getById(id)
-
-        // request ke tool.apiLink
-    }
-
-    async toolAngga1(toolAngga1Dto: DepressionLevelModelDto) {
-        // Punya Angga
-        let answers = toolAngga1Dto.toJson()
-        let json: string = JSON.stringify(answers)
-
-        const id: string = "1231241421";
-        let tool = this.getById(id)
-    }
-
-    async toolAngga2(toolAngga2Dto: ToolsNlpDto, userId: string) {
-        // Punya Angga
-        let answers = toolAngga2Dto.toJson()
+        let answers = instanceToPlain(mentalDisorderModelReq)
 
         const toolId: string = "1231241421";
-        let tool = await this.getById(toolId)
+        let tool: PsikologiTools;
 
-        const result = await this.doRequestAndSave(tool.apiLink, answers, answers.name, toolId, userId)
+        try {
+            tool = (await this.getById(toolId)) ?? this.emptyTools
+        } catch(error) {
+            throw new InternalServerError(`Error: ${error}`);
+        }
+
+        const result = await this.doRequestAndSave(tool, answers, answers.name, userId)
 
         return result.answers
     }
 
-    async toolHowYesterdayClassification(toolHowYesterdayClassificationDto: ToolsNlpDto) {
+    async depressionLevelModel(depressionLevelModelReq: DepressionLevelModelDto, userId: string) {
+        // Punya Angga
+        let answers = instanceToPlain(depressionLevelModelReq)
+
+        const toolId: string = "1231241421";
+        let tool: PsikologiTools;
+
+        try {
+            tool = (await this.getById(toolId)) ?? this.emptyTools
+        } catch(error) {
+            throw new InternalServerError(`Error: ${error}`);
+        }
+
+        const result = await this.doRequestAndSave(tool, answers, answers.name, userId)
+
+        return result.answers
+    }
+
+    private emptyTools: PsikologiTools = {
+        id: "",
+        name: "",
+        path: "",
+        class: 0,
+        description: "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    };
+
+    async textEmotionModel(textEmotionModelReq: ToolsNlpDto, userId: string) {
+        // Punya Angga
+        let answers = instanceToPlain(textEmotionModelReq)
+
+        const toolId: string = "1231241421";
+        let tool: PsikologiTools;
+
+        try {
+            tool = (await this.getById(toolId)) ?? this.emptyTools
+        } catch(error) {
+            throw new InternalServerError(`Error: ${error}`);
+        }
+
+        const result = await this.doRequestAndSave(tool, answers, answers.name, userId)
+
+        return result.answers
+    }
+
+    async wdytYesterdayModel(wdytYesterdayModelReq: ToolsNlpDto, userId: string) {
         // Punya Yoel
-        let answers = toolHowYesterdayClassificationDto.toJson()
-        let json: string = JSON.stringify(answers)
+        let answers = instanceToPlain(wdytYesterdayModelReq)
 
-        const id: string = "1231241421";
-        let tool = this.getById(id)
-        // request ke Backend ML dan dapetin hasil (bikin linknya mock dulu)
+        const toolId: string = "1231241421";
+        let tool: PsikologiTools;
 
-        // masukkan jawaban ke result
+        try {
+            tool = (await this.getById(toolId)) ?? this.emptyTools
+        } catch(error) {
+            throw new InternalServerError(`Error: ${error}`);
+        }
 
-        // selesai
+        const result = await this.doRequestAndSave(tool, answers, answers.name, userId)
 
+        return result.answers
     }
 }
