@@ -5,9 +5,9 @@ import { IsEmail, Length } from 'class-validator';
  */
 export class LoginDto {
   /** @type {string} */
+  @Length(0,40)
+  uuid: string;
+  /** @type {string} */
   @IsEmail()
   email: string;
-  /** @type {string} */
-  @Length(8, 100)
-  password: string;
 }

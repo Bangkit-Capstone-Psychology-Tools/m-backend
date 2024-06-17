@@ -37,10 +37,6 @@ export const authCheck = async (
   if (!user) {
     throw new UnauthorizedError('Invalid user');
   }
-  // User is not active
-  if (!user.isActive) {
-    throw new UnauthorizedError('Blocked user');
-  }
 
   // Active user and no role required
   if (user && !roles.length) return true;

@@ -13,29 +13,31 @@ model PsikologJobs {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @map("updated_at")
 
-  PsikologAdditionalData PsikologAdditionalData[]
+  User User[]
 
   @@index([name], name: "idx_name")
   @@map("psikolog_job")
 }
 
 model User {
-  id         String    @id @default(uuid())
-  name       String    @db.VarChar(50)
-  type       String    @db.VarChar(20)
-  isVerified Boolean   @default(false) @map("is_verified")
-  photoUrl   String?   @map("photo_url") @db.VarChar(100)
-  email      String    @unique @db.VarChar(50)
-  noHp       String?   @map("no_hp") @db.VarChar(13)
-  birthday   DateTime?
-  createdAt  DateTime  @default(now()) @map("created_at")
-  updatedAt  DateTime  @default(now()) @map("updated_at")
-  roleId     Int       @default(1)
+  id                    String   @id @default(uuid())
+  name                  String   @db.VarChar(50)
+  // type                  String    @db.VarChar(20)
+  isVerified            Boolean  @default(false) @map("is_verified")
+  photoUrl              String?  @map("photo_url") @db.VarChar(100)
+  email                 String   @unique @db.VarChar(50)
+  noHp                  String?  @map("no_hp") @db.VarChar(13)
+  birthday              DateTime @default(now())
+  currentJobId          String?  @map("current_job_id")
+  class                 Int
+  nik                   String?  @db.VarChar(50)
+  certificateCredential String?  @map("certificate_credential") @db.VarChar(20)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @default(now()) @map("updated_at")
 
-  TreatmentSession       TreatmentSession[]
-  Result                 Result[]
-  PsikologAdditionalData PsikologAdditionalData?
-  role                   Role                    @relation(fields: [roleId], references: [id])
+  treatmentSession TreatmentSession[]
+  result           Result[]
+  PsikologJobs     PsikologJobs?      @relation(fields: [currentJobId], references: [id])
 
   @@map("user")
 }
@@ -46,27 +48,7 @@ model Role {
   name        String @db.VarChar(50)
   description String
 
-  User User[]
-
   @@map("roles")
-}
-
-model PsikologAdditionalData {
-  psikologId            String   @id @default(uuid()) @map("psychologist_id")
-  nik                   String   @db.VarChar(50)
-  certificateCredential String   @map("certificate_credential") @db.VarChar(20)
-  isVerified            Boolean  @default(false) @map("is_verified")
-  photoUrl              String?  @map("photo_url") @db.VarChar(100)
-  email                 String   @unique @db.VarChar(50)
-  class                 Int
-  currentJobId          String?  @map("current_job_id")
-  createdAt             DateTime @default(now()) @map("created_at")
-  updatedAt             DateTime @default(now()) @map("updated_at")
-
-  Psikolog     User          @relation(fields: [psikologId], references: [id])
-  PsikologJobs PsikologJobs? @relation(fields: [currentJobId], references: [id])
-
-  @@map("psikolog_additional_data")
 }
 
 model Result {

@@ -3,9 +3,13 @@ import {
   BadRequestError,
   InternalServerError,
   NotFoundError,
+  UnauthorizedError,
 } from 'routing-controllers';
 import { CreateUserDto } from '../dtos/CreateUserDto';
 import { IUser } from '../interfaces/IUser';
+import bcryptjs from 'bcryptjs';
+import { generateJWT } from '../utils/GenerateJWT';
+import { LoginDto } from '../dtos';
 
 /**
  * UserService class
@@ -31,20 +35,7 @@ export class UserService {
    * @returns {Promise<IUser[]>}
    */
   async index(): Promise<IUser[]> {
-    const users: IUser[] = await this.prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        createdAt: true,
-        updatedAt: true,
-        role: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
+    const users: IUser[] = await this.prisma.user.findMany();
     return users;
   }
 
@@ -56,19 +47,7 @@ export class UserService {
    */
   async getByUUID(uuid: string): Promise<IUser | null> {
     const user: IUser | null = await this.prisma.user.findUnique({
-      where: { id: uuid },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        createdAt: true,
-        updatedAt: true,
-        role: {
-          select: {
-            name: true,
-          },
-        },
-      },
+      where: { id: uuid }
     });
 
     if (!user) {
@@ -88,7 +67,7 @@ export class UserService {
     try {
       return await this.prisma.user.findUnique({
         where: { email },
-      });
+      }) as IUser;
     } catch (error) {
       throw new InternalServerError(`Error: ${error}`);
     }
@@ -107,9 +86,6 @@ export class UserService {
         console.log('Email already registered');
         throw new BadRequestError(`Error: Email is already registered`);
       }
-
-      // Hash password
-      createUserDto.password = await hash(createUserDto.password);
 
       return this.prisma.user.create({
         data: createUserDto,
@@ -135,6 +111,34 @@ export class UserService {
       });
     } catch (error) {
       throw new BadRequestError(`Error: ${error}`);
+    }
+  }
+
+  async login(loginDto: LoginDto): Promise<{}> {
+    try {
+      const { uuid, email } = loginDto;
+
+      // Find user by email and get their id, email and password
+      const userService = new UserService();
+      const user: IUser | null = await userService.getByEmail(email);
+
+      // User doesn't exist
+      if (!user) {
+        return {
+          ok: 2,
+          message: "need register",
+        }
+      }
+
+      // Generate JWT
+      const token = await generateJWT(user.id);
+
+      return {
+        ok: 1,
+        token: `Bearer ${token}`,
+      };
+    } catch (error) {
+      throw new InternalServerError(`Error ${error}`);
     }
   }
 }

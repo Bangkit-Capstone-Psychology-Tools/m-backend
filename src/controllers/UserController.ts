@@ -11,6 +11,7 @@ import { User } from '@prisma/client';
 import { UserService } from '../services/';
 import { CreateUserDto } from '../dtos/CreateUserDto';
 import { IUser } from '../interfaces/IUser';
+import { LoginDto } from '../dtos';
 
 /**
  * UserController class
@@ -76,5 +77,10 @@ export class UserController {
   @OnUndefined(204)
   delete(@Param('uuid') uuid: string): Promise<void> {
     return this.userService.delete(uuid);
+  }
+
+  @Post('/login')
+  login(@Body() loginDto: LoginDto): Promise<{}> {
+    return this.userService.login(loginDto);
   }
 }
