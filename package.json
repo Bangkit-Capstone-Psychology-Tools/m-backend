@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node ./dist/app.js\"",
     "build": "tsc",
-    "start": "node ./dist/app.js"
+    "start": "node ./dist/app.js",
+    "migrate": "npx prisma migrate dev --name init && npx prisma generate"
   },
   "keywords": [],
   "author": "",
