@@ -15,6 +15,6 @@ export class RegisterToolDto {
   @Length(8, 50)
   description: string;
   /** @type {string} */
-  @Length(10,200)
+  @Length(0,200)
   path: string;
 }

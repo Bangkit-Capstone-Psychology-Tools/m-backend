@@ -70,6 +70,12 @@ export class UserService {
       }) as IUser;
     } catch (error) {
       throw new InternalServerError(`Error: ${error}`);
+    }try {
+      return await this.prisma.user.findUnique({
+        where: { email },
+      }) as IUser;
+    } catch (error) {
+      throw new InternalServerError(`Error: ${error}`);
     }
   }
 
@@ -116,7 +122,7 @@ export class UserService {
 
   async login(loginDto: LoginDto): Promise<{}> {
     try {
-      const { uuid, email } = loginDto;
+      const { id, email } = loginDto;
 
       // Find user by email and get their id, email and password
       const userService = new UserService();

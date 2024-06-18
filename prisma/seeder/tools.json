@@ -1,0 +1,26 @@
+[
+    {
+        "name": "Mental Disorder",
+        "class": 2,
+        "descriptsion": "Predicting mental disorder with several questions",
+        "path": "mental_disorder"
+    },
+    {
+        "name": "Depression Level Prediction",
+        "class": 2,
+        "descriptsion": "Determine your level of depression based on responses to several ranged questions.",
+        "path": "depression_level"
+    },
+    {
+        "name": "How the Emotion",
+        "class": 2,
+        "descriptsion": "Predicting Emotion Based on Given Text",
+        "path": "text_emotion"
+    },
+    {
+        "name": "What Do You Think About Yesterday?",
+        "class": 2,
+        "descriptsion": "Tell us what do you think about your yesterday",
+        "path": "wdyt_yesterday"
+    }
+]

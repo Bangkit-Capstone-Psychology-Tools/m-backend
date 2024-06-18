@@ -14,6 +14,8 @@ import { Request } from 'express'
 import { PsychologyToolsService } from '../services';
 import { DepressionLevelModelDto, MentalDisorderModelDto, RegisterToolDto, ToolsNlpDto } from '../dtos';
 import { AuthMiddleware } from '../middleware/AuthMiddleware';
+import { PsikologiTools } from '@prisma/client';
+import { before } from 'node:test';
 
 /**
  * PyschologyToolsController class
@@ -37,50 +39,68 @@ export class PyschologyToolsController {
     this.psychologyToolsService = new PsychologyToolsService();
   }
 
-  @Post('/')
-  async registerTool(@Req() req: Request) {
+  @Get('/')
+  index(): Promise<PsikologiTools[]> {
+    return this.psychologyToolsService.index();
+  }
 
-    const body: RegisterToolDto = req.body as {
-      name: string,
-      class: number,
-      description: string,
-      path: string
-    }
+  @Post('/')
+  @UseBefore(AuthMiddleware)
+  async registerTool(
+    // @Body() body: RegisterToolDto,
+    @Req() req: Request
+  ) {
+
+    // const body: RegisterToolDto = req.body as {
+    //   name: string,
+    //   class: number,
+    //   description: string,
+    //   path: string
+    // }
     
+    // const body: RegisterToolDto = Body()(req.body) as RegisterToolDto;
+
     return {
       message: "success",
-      data: this.psychologyToolsService.registerTool(body)
+      data: {
+        // body: body,
+        userId: req.userId
+      }
     }
   }
 
   @Post('/mental_disorder')
   @UseBefore(AuthMiddleware)
-  async mentalDisorderModel(@Req() req: Request) {
+  async mentalDisorderModel(
+    @Body() body: MentalDisorderModelDto,
+    @Req() req: Request
+  ) {
     const user = req.userId; // Access the user property set in the middleware
     if (!user) {
       return { error: 'User not authenticated' };
     }
 
-    const body: MentalDisorderModelDto = req.body as {
-      name: string,
-      kesedihan: number, 
-      euphoria: number, 
-      lelah: number, 
-      gangguanTidur: number, 
-      moodSwing: number, 
-      pikiranBunuhDiri: number, 
-      anoreksia: number, 
-      menghormatiOtoritas: number, 
-      memberikanPenjelasan: number, 
-      responsAgresif: number, 
-      tidakPeduli: number, 
-      mudahGugup: number, 
-      mengakuiKesalahan: number, 
-      overthinking: number, 
-      aktivitasSeksual: number, 
-      mudahKonsentrasi: number, 
-      optimis: number
-    };
+    // const body: MentalDisorderModelDto = req.body as {
+    //   name: string,
+    //   kesedihan: number, 
+    //   euphoria: number, 
+    //   lelah: number, 
+    //   gangguanTidur: number, 
+    //   moodSwing: number, 
+    //   pikiranBunuhDiri: number, 
+    //   anoreksia: number, 
+    //   menghormatiOtoritas: number, 
+    //   memberikanPenjelasan: number, 
+    //   responsAgresif: number, 
+    //   tidakPeduli: number, 
+    //   mudahGugup: number, 
+    //   mengakuiKesalahan: number, 
+    //   overthinking: number, 
+    //   aktivitasSeksual: number, 
+    //   mudahKonsentrasi: number, 
+    //   optimis: number
+    // };
+    // const body: MentalDisorderModelDto = Body()(req.body) as MentalDisorderModelDto;
 
     const result = await this.psychologyToolsService.mentalDisorderModel(body, user);
     return { message: 'Data processed successfully', result };

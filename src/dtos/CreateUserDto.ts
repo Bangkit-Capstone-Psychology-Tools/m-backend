@@ -27,8 +27,7 @@ export class CreateUserDto {
   @Length(6, 13)
   noHp: string;
 
-  @IsDate()
-  birthday: Date;
+  birthday?: Date;
 
   @Min(1)
   @Max(4)

@@ -17,7 +17,7 @@ export const generateJWT = async (userId: any): Promise<any> => {
       { expiresIn: '24h' },
       (err, token) => {
         if (err) {
-          reject('Error while generating token');
+          reject(`Error while generating token: ${err}`);
         }
         resolve(token);
       },
@@ -29,7 +29,7 @@ export const decodeJWT = (token: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     jwt.verify(token, process.env.SECRET_KEY || '', (err, decoded) => {
       if (err) {
-        reject('Error while decoding token');
+        reject(`Error while decoding token ${err} ${decoded}`);
       } else {
         resolve(decoded);
       }

@@ -8,6 +8,8 @@ import {
 import { json } from 'body-parser';
 import axios from 'axios';
 import { instanceToPlain } from 'class-transformer';
+import { UserService } from './UserService';
+import { IUser } from '../interfaces/IUser';
 
 const ML_API = `${process.env.ML_BACKEND}/model/ `
 
@@ -18,6 +20,7 @@ const ML_API = `${process.env.ML_BACKEND}/model/ `
 export class PsychologyToolsService {
     /** @type {PrismaClient} */
     private prisma: PrismaClient;
+    private userService: UserService;
   
     /**
      * UserService constructor,
@@ -27,35 +30,43 @@ export class PsychologyToolsService {
      */
     constructor() {
       this.prisma = new PrismaClient();
+      this.userService = new UserService();
+    }
+
+    async index(): Promise<PsikologiTools[]> {
+        const tools: PsikologiTools[] = await this.prisma.psikologiTools.findMany();
+        return tools;
     }
 
     async registerTool(registerToolDto: RegisterToolDto) {
         try {
+
+            console.log(registerToolDto);
             // If email is already registered
-            if (await this.getPath(registerToolDto.path)) {
-                console.log('The Api Link already registered');
-                throw new BadRequestError(`Error: Api Link is already registered`);
-            }
+            // if (await this.getByPath(registerToolDto.path)) {
+            //     console.log('The Api Link already registered');
+            //     throw new BadRequestError(`Error: Api Link is already registered`);
+            // }
       
             // Hash password
-            return this.prisma.psikologiTools.create({
-                data: {
-                    name: registerToolDto.name,
-                    path: registerToolDto.path,
-                    description: registerToolDto.description,
-                    class: registerToolDto.class
-                },
-            });
+            // return this.prisma.psikologiTools.create({
+            //     data: {
+            //         name: registerToolDto.name,
+            //         path: registerToolDto.path,
+            //         description: registerToolDto.description,
+            //         class: registerToolDto.class
+            //     },
+            // });
         } catch (error) {
             throw new BadRequestError(`Error: ${error}`);
         }
     }
 
-    async getPath(path: string) {
+    async getByPath(path: string) {
         try {
             return await this.prisma.psikologiTools.findUnique({
                 where: {
-                    path: '34',
+                    path: path,
                 },
             });
         } catch (error) {
@@ -98,17 +109,31 @@ export class PsychologyToolsService {
         }
     }
 
+    async checkClass(tool: PsikologiTools, userId: string) {
+        const user: IUser | null = (await this.userService.getByUUID(userId));
+
+        if (user && typeof user.class === 'number') {
+            return tool.class <= user.class;
+        } else {
+            return false;
+        }
+    }
+
     async mentalDisorderModel(mentalDisorderModelReq: MentalDisorderModelDto, userId: string) {
         // Punya sony
         let answers = instanceToPlain(mentalDisorderModelReq)
 
-        const toolId: string = "1231241421";
+        const toolPath: string = "mental_disorder";
         let tool: PsikologiTools;
 
         try {
-            tool = (await this.getById(toolId)) ?? this.emptyTools
+            tool = (await this.getByPath(toolPath)) ?? this.emptyTools
         } catch(error) {
             throw new InternalServerError(`Error: ${error}`);
+        }
+
+        if(await this.checkClass(tool, userId)) {
+            throw new InternalServerError(`Error: Class tidak lebih tinggi atau sama dengan user`);
         }
 
         const result = await this.doRequestAndSave(tool, answers, answers.name, userId)
@@ -120,13 +145,17 @@ export class PsychologyToolsService {
         // Punya Angga
         let answers = instanceToPlain(depressionLevelModelReq)
 
-        const toolId: string = "1231241421";
+        const toolPath: string = "depression_level";
         let tool: PsikologiTools;
 
         try {
-            tool = (await this.getById(toolId)) ?? this.emptyTools
+            tool = (await this.getByPath(toolPath)) ?? this.emptyTools
         } catch(error) {
             throw new InternalServerError(`Error: ${error}`);
+        }
+
+        if(await this.checkClass(tool, userId)) {
+            throw new InternalServerError(`Error: Class tidak lebih tinggi atau sama dengan user`);
         }
 
         const result = await this.doRequestAndSave(tool, answers, answers.name, userId)
@@ -148,13 +177,17 @@ export class PsychologyToolsService {
         // Punya Angga
         let answers = instanceToPlain(textEmotionModelReq)
 
-        const toolId: string = "1231241421";
+        const toolPath: string = "text_emotion";
         let tool: PsikologiTools;
 
         try {
-            tool = (await this.getById(toolId)) ?? this.emptyTools
+            tool = (await this.getByPath(toolPath)) ?? this.emptyTools
         } catch(error) {
             throw new InternalServerError(`Error: ${error}`);
+        }
+
+        if(await this.checkClass(tool, userId)) {
+            throw new InternalServerError(`Error: Class tidak lebih tinggi atau sama dengan user`);
         }
 
         const result = await this.doRequestAndSave(tool, answers, answers.name, userId)
@@ -166,13 +199,17 @@ export class PsychologyToolsService {
         // Punya Yoel
         let answers = instanceToPlain(wdytYesterdayModelReq)
 
-        const toolId: string = "1231241421";
+        const toolPath: string = "wdyt_yesterday";
         let tool: PsikologiTools;
 
         try {
-            tool = (await this.getById(toolId)) ?? this.emptyTools
+            tool = (await this.getByPath(toolPath)) ?? this.emptyTools
         } catch(error) {
             throw new InternalServerError(`Error: ${error}`);
+        }
+
+        if(await this.checkClass(tool, userId)) {
+            throw new InternalServerError(`Error: Class tidak lebih tinggi atau sama dengan user`);
         }
 
         const result = await this.doRequestAndSave(tool, answers, answers.name, userId)
