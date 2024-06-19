@@ -4,7 +4,7 @@ import { IsEmail, Length } from 'class-validator';
  * @class
  */
 export class ToolsNlpDto {
-  @Length(5,20)
+  @Length(0,50)
   name: string;
   /** @type {string} */
   @Length(8, 1000)

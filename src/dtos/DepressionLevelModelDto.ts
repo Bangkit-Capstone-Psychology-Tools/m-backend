@@ -1,7 +1,7 @@
 import { Min, Max, Length } from 'class-validator';
 
 export class DepressionLevelModelDto {
-    @Length(5,20)
+    @Length(0,50)
     name: string;
     
     @Min(1)

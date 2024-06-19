@@ -43,20 +43,19 @@ export class PsychologyToolsService {
 
             console.log(registerToolDto);
             // If email is already registered
-            // if (await this.getByPath(registerToolDto.path)) {
-            //     console.log('The Api Link already registered');
-            //     throw new BadRequestError(`Error: Api Link is already registered`);
-            // }
-      
-            // Hash password
-            // return this.prisma.psikologiTools.create({
-            //     data: {
-            //         name: registerToolDto.name,
-            //         path: registerToolDto.path,
-            //         description: registerToolDto.description,
-            //         class: registerToolDto.class
-            //     },
-            // });
+            if (await this.getByPath(registerToolDto.path)) {
+                console.log('The Api Link already registered');
+                throw new BadRequestError(`Error: Api Link is already registered`);
+            }
+
+            return this.prisma.psikologiTools.create({
+                data: {
+                    name: registerToolDto.name,
+                    path: registerToolDto.path,
+                    description: registerToolDto.description,
+                    class: registerToolDto.class
+                },
+            });
         } catch (error) {
             throw new BadRequestError(`Error: ${error}`);
         }
@@ -122,10 +121,10 @@ export class PsychologyToolsService {
     async mentalDisorderModel(mentalDisorderModelReq: MentalDisorderModelDto, userId: string) {
         // Punya sony
         let answers = instanceToPlain(mentalDisorderModelReq)
-
+        console.log(answers)
         const toolPath: string = "mental_disorder";
         let tool: PsikologiTools;
-
+        console.log(toolPath)
         try {
             tool = (await this.getByPath(toolPath)) ?? this.emptyTools
         } catch(error) {

@@ -4,7 +4,7 @@ import { Min, Max, Length } from 'class-validator';
  * @class
  */
 export class MentalDisorderModelDto {
-  @Length(5,20)
+  @Length(0,50)
   name: string;
   @Min(1)
   @Max(4)

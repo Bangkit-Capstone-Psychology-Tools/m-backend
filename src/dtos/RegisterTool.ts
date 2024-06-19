@@ -12,7 +12,7 @@ export class RegisterToolDto {
   @Max(4)
   class: number;
   /** @type {string} */
-  @Length(8, 50)
+  @Length(8, 200)
   description: string;
   /** @type {string} */
   @Length(0,200)

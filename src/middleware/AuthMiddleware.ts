@@ -28,8 +28,8 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
         const bearer = bearerHeader.split(' ');
         const bearerToken = bearer[1];
         try {
-          const decoded = await decodeJWT(bearerToken);
-          req.userId = decoded;
+          const { userId } = await decodeJWT(bearerToken);
+          req.userId = userId;
           next();
       } catch (error) {
           console.error(error);
